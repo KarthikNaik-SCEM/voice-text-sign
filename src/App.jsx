@@ -15,6 +15,7 @@ function App() {
     browserSupportsSpeechRecognition
   } = useSpeechRecognition();
 
+  //convert the text to sign lang after the recognition
   useEffect(() => {
     if (finalTranscript !== '') {
       convertWordToImage()
