@@ -34,57 +34,59 @@ function App() {
   // const [mess, setMess] = useState("Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius minus ullam incidunt nulla dolor assumenda quidem dolorum quia excepturi ipsa.")
   const [signConversionImage, setSignConversionImage] = useState("");
 
-  //this will contain the list of objects where each object item is either a word or a letter and based on that it will 
+  //this will contain the list of objects where each object item is either a word or a letter and based on that it will
 
-  
   // Function to convert the words to sign language images
-const convertWordToImage = async () => {
-  const arrayOfWords = transcript.match(/\b(\w+)\b/g);
+  const convertWordToImage = async () => {
+    const arrayOfWords = transcript.match(/\b(\w+)\b/g);
 
-  // Define a function to convert a single word
-  const convertWord = async (word) => {
-    const response = await fetch(`http://localhost:8800/getSignWord/${word.toLowerCase()}`);
-    const data = await response.json();
-    if (data.success) {
-      setSignConversionImage(data.url);
-    } else {
-      await convertLetterToImage(word); // Convert letter by letter if word not found
+    // Define a function to convert a single word
+    const convertWord = async (word) => {
+      const response = await fetch(
+        `http://localhost:8800/getSignWord/${word.toLowerCase()}`
+      );
+      const data = await response.json();
+      if (data.success) {
+        setSignConversionImage(data.url);
+      } else {
+        await convertLetterToImage(word); // Convert letter by letter if word not found
+      }
+    };
+
+    // Loop through each word in the array
+    for (const word of arrayOfWords) {
+      await convertWord(word); // Wait for the conversion of each word
+      await delay(2000); // Wait for 2 seconds before processing the next word
     }
   };
 
-  // Loop through each word in the array
-  for (const word of arrayOfWords) {
-    await convertWord(word); // Wait for the conversion of each word
-    await delay(2000); // Wait for 2 seconds before processing the next word
-  }
-};
+  // Function to convert the letters to sign language images
+  const convertLetterToImage = async (word) => {
+    const arrayOfLetters = word.split("");
 
-// Function to convert the letters to sign language images
-const convertLetterToImage = async (word) => {
-  const arrayOfLetters = word.split("");
+    // Define a function to convert a single letter
+    const convertLetter = async (letter) => {
+      const response = await fetch(
+        `http://localhost:8800/getSignLetter/${letter.toLowerCase()}`
+      );
+      const data = await response.json();
+      if (data.success) {
+        setSignConversionImage(data.url);
+      }
+      await delay(2000); // Wait for 2 seconds before processing the next letter
+    };
 
-  // Define a function to convert a single letter
-  const convertLetter = async (letter) => {
-    const response = await fetch(`http://localhost:8800/getSignLetter/${letter.toLowerCase()}`);
-    const data = await response.json();
-    if (data.success) {
-      setSignConversionImage(data.url);
+    // Loop through each letter in the array
+    for (const letter of arrayOfLetters) {
+      await convertLetter(letter); // Wait for the conversion of each letter
     }
-    await delay(2000); // Wait for 2 seconds before processing the next letter
   };
 
-  // Loop through each letter in the array
-  for (const letter of arrayOfLetters) {
-    await convertLetter(letter); // Wait for the conversion of each letter
-  }
-};
+  // Utility function to create delay using promises
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Utility function to create delay using promises
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Call convertWordToImage function
-// convertWordToImage();
-
+  // Call convertWordToImage function
+  // convertWordToImage();
 
   return (
     <section className="flex items-center justify-center flex-col-reverse h-screen w-screen bg-[#0b2942] text-white">
